@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giám sát vi phạm làn đường - Hệ thống Giao thông</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark-color) !important;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+
+        .nav-link:hover {
+            background-color: var(--primary-color);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            margin: 2rem auto;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .content-section {
+            padding: 2rem;
+        }
+
+        .navigation-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: var(--dark-color);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+
+        .nav-card-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .nav-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-card-description {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .video-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+        }
+
+        .video-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-icon {
+            font-size: 1.5rem;
+            color: var(--success-color);
+            margin-right: 0.75rem;
+        }
+
+        .video-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .video-container {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background: #000;
+            box-shadow: var(--shadow);
+        }
+
+        .video-stream {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .connection-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        .status-connected {
+            background: rgba(5, 150, 105, 0.9);
+            color: white;
+        }
+
+        .status-disconnected {
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+        }
+
+        .status-loading {
+            background: rgba(217, 119, 6, 0.9);
+            color: white;
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-top: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 2rem;
+            }
+            
+            .navigation-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-section {
+                padding: 1rem;
+            }
+        }
+
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .display {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-traffic me-2"></i>
+                Giám Sát Giao Thông
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Hethongcamera1">
+                            <i class="bi bi-layers me-1"></i>Làn đường
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/thongke">
+                            <i class="bi bi-graph-up me-1"></i>Thống kê
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/bb">
+                            <i class="bi bi-file-text me-1"></i>Quy định
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid" style="padding-top: 80px;">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1 class="header-title">
+                    <i class="bi bi-camera-video me-3"></i>
+                    Camera Giám Sát Làn Đường
+                </h1>
+                <p class="header-subtitle">
+                    Hệ thống giám sát thông minh sử dụng AI để phát hiện và đếm phương tiện giao thông
+                </p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="content-section">
+                <!-- Navigation Cards -->
+                <div class="navigation-cards">
+                    
+                    <a href="/thongke" class="nav-card">
+                        <div class="nav-card-icon">
+                            <i class="bi bi-bar-chart"></i>
+                        </div>
+                        <h3 class="nav-card-title">Thống Kê Vi Phạm</h3>
+                        <p class="nav-card-description">Xem báo cáo chi tiết về các vi phạm giao thông</p>
+                    </a>
+                    
+                    <a href="/bb" class="nav-card">
+                        <div class="nav-card-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <h3 class="nav-card-title">Quy Định Giao Thông</h3>
+                        <p class="nav-card-description">Thông tin về các quy định và luật giao thông</p>
+                    </a>
+                    
+                    <a href="/" class="nav-card">
+                        <div class="nav-card-icon">
+                            <i class="bi bi-house"></i>
+                        </div>
+                        <h3 class="nav-card-title">Trang Chủ</h3>
+                        <p class="nav-card-description">Quay lại trang chủ của hệ thống</p>
+                    </a>
+                </div>
+
+                <!-- Video Section -->
+                <div class="video-section">
+                    <div class="video-header">
+                        <i class="bi bi-camera-video-fill video-icon"></i>
+                        <h2 class="video-title">Luồng Video Trực Tiếp</h2>
+                    </div>
+                    
+                    <div class="video-container">
+                        <div class="connection-status status-loading" id="conn-alert">
+                            <i class="bi bi-wifi me-1"></i>Đang kết nối...
+                        </div>
+                        <img id="steam" 
+                             src="http://127.0.0.1:8000/camera1" 
+                             class="video-stream" 
+                             alt="Camera giám sát giao thông"
+                             loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Video connection check
+        function checkVideoAlive() {
+            const video = document.getElementById("steam");
+            const statusElement = document.getElementById("conn-alert");
+            
+            video.onerror = function() {
+                console.log("Video connection failed");
+                statusElement.className = "connection-status status-disconnected";
+                statusElement.innerHTML = '<i class="bi bi-wifi-off me-1"></i>Không kết nối';
+                video.style.display = 'none';
+            };
+
+            video.onload = function() {
+                console.log("Video connected successfully");
+                statusElement.className = "connection-status status-connected";
+                statusElement.innerHTML = '<i class="bi bi-wifi me-1"></i>Đã kết nối';
+            };
+
+            // Simulate some stats for demo
+            setTimeout(() => {
+                document.getElementById('total-violations').textContent = Math.floor(Math.random() * 50) + 10;
+                document.getElementById('lane-violations').textContent = Math.floor(Math.random() * 30) + 5;
+                document.getElementById('helmet-violations').textContent = Math.floor(Math.random() * 20) + 3;
+            }, 2000);
+        }
+
+        // Preloader
+        function hidePreloader() {
+            const preloader = document.getElementById("preloader");
+            preloader.classList.add("display");
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkVideoAlive();
+            setTimeout(hidePreloader, 1000);
+        });
+
+        // Auto-refresh video every 30 seconds
+        setInterval(() => {
+            const video = document.getElementById("steam");
+            video.src = video.src;
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quy định giao thông - Hệ thống Giao thông</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark-color) !important;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+
+        .nav-link:hover {
+            background-color: var(--primary-color);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            margin: 2rem auto;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .content-section {
+            padding: 2rem;
+        }
+
+        .chapter-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .chapter-title {
+            color: var(--danger-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .chapter-title i {
+            margin-right: 0.75rem;
+            font-size: 1.8rem;
+        }
+
+        .article-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .article-content {
+            color: var(--dark-color);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .highlight-box::before {
+            content: "⚠️";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 0 8px;
+            font-size: 1.2rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .info-box::before {
+            content: "ℹ️";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 0 8px;
+            font-size: 1.2rem;
+        }
+
+        .regulation-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin: 1rem 0;
+            display: block;
+        }
+
+        .regulation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .regulation-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-top: 3px solid var(--success-color);
+            transition: transform 0.3s ease;
+        }
+
+        .regulation-item:hover {
+            transform: translateY(-4px);
+        }
+
+        .regulation-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .custom-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .custom-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .custom-table tr:hover {
+            background: var(--light-color);
+        }
+
+        .toc-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .toc-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .toc-list li {
+            margin-bottom: 0.75rem;
+        }
+
+        .toc-list a {
+            color: var(--dark-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .toc-list a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 2rem;
+            }
+            
+            .content-section {
+                padding: 1rem;
+            }
+            
+            .chapter-card {
+                padding: 1.5rem;
+            }
+            
+            .regulation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .display {
+            display: none !important;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-to-top:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-car-front me-2"></i>
+                Vehicle Detection System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/detection">
+                            <i class="bi bi-camera-video me-1"></i>Nhận diện
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/statistics">
+                            <i class="bi bi-graph-up me-1"></i>Thống kê
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/regulations">
+                            <i class="bi bi-file-text me-1"></i>Quy định
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid" style="padding-top: 80px;">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1 class="header-title">
+                    <i class="bi bi-journal-text me-3"></i>
+                    Quy Định Phương Tiện Giao Thông
+                </h1>
+                <p class="header-subtitle">
+                    Thông tin chi tiết về các quy định và luật giao thông liên quan đến phương tiện
+                </p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="content-section">
+                <!-- Table of Contents -->
+                <div class="toc-section">
+                    <h2 class="toc-title">
+                        <i class="bi bi-list-ul me-2"></i>
+                        Mục Lục
+                    </h2>
+                    <ul class="toc-list">
+                        <li><a href="#chapter1">Chương I: Phân loại phương tiện giao thông</a></li>
+                        <li><a href="#chapter2">Chương II: Quy định về phương tiện</a></li>
+                        <li><a href="#chapter3">Chương III: Quy tắc tham gia giao thông</a></li>
+                        <li><a href="#violations">Các hành vi bị nghiêm cấm</a></li>
+                        <li><a href="#penalties">Mức phạt và xử lý vi phạm</a></li>
+                    </ul>
+                </div>
+
+                <!-- Chapter 1 -->
+                <div class="chapter-card" id="chapter1">
+                    <h2 class="chapter-title">
+                        <i class="bi bi-1-circle"></i>
+                        CHƯƠNG I: PHÂN LOẠI PHƯƠNG TIỆN GIAO THÔNG
+                    </h2>
+                    
+                    <div class="article-title">Điều 1. Các loại phương tiện giao thông đường bộ</div>
+                    <div class="article-content">
+                        <p><strong>1. Phương tiện giao thông đường bộ bao gồm:</strong></p>
+                        <div class="info-box">
+                            <p><strong>a) Ô tô:</strong> Xe cơ giới có từ 4 bánh trở lên, có động cơ, được thiết kế để chở người hoặc hàng hóa trên đường bộ.</p>
+                            <p><strong>b) Xe tải:</strong> Ô tô được thiết kế để chuyên chở hàng hóa, có thùng xe hoặc sàn xe để xếp hàng.</p>
+                            <p><strong>c) Xe buýt:</strong> Ô tô được thiết kế để chở nhiều người, có từ 10 chỗ ngồi trở lên, chạy theo tuyến cố định.</p>
+                            <p><strong>d) Xe máy:</strong> Xe cơ giới có từ 2 đến 3 bánh, có động cơ, được thiết kế để chở người.</p>
+                            <p><strong>e) Xe đạp:</strong> Xe thô sơ có từ 2 bánh trở lên, được vận hành bằng sức người.</p>
+                            <p><strong>f) Người đi bộ:</strong> Người tham gia giao thông bằng cách đi bộ trên đường.</p>
+                        </div>
+                    </div>
+
+                    <div class="article-title">Điều 2. Phân loại theo mục đích sử dụng</div>
+                    <div class="article-content">
+                        <div class="highlight-box">
+                            <p><strong>Phương tiện giao thông được phân loại theo mục đích sử dụng:</strong></p>
+                            <ul>
+                                <li><strong>Phương tiện cá nhân:</strong> Ô tô con, xe máy, xe đạp</li>
+                                <li><strong>Phương tiện công cộng:</strong> Xe buýt, taxi, xe khách</li>
+                                <li><strong>Phương tiện vận tải:</strong> Xe tải, xe container</li>
+                                <li><strong>Phương tiện đặc biệt:</strong> Xe cứu thương, xe cảnh sát, xe cứu hỏa</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="regulation-grid">
+                        <div class="regulation-item">
+                            <div class="regulation-number">1</div>
+                            <h5><i class="bi bi-car-front text-primary"></i> Ô tô</h5>
+                            <p>Xe cơ giới có từ 4 bánh trở lên, có động cơ, được thiết kế để chở người hoặc hàng hóa trên đường bộ.</p>
+                            <img src="https://img.freepik.com/free-vector/car-illustration_23-2148498591.jpg" alt="Ô tô" class="regulation-image">
+                        </div>
+                        
+                        <div class="regulation-item">
+                            <div class="regulation-number">2</div>
+                            <h5><i class="bi bi-truck text-success"></i> Xe tải</h5>
+                            <p>Ô tô được thiết kế để chuyên chở hàng hóa, có thùng xe hoặc sàn xe để xếp hàng.</p>
+                            <img src="https://img.freepik.com/free-vector/delivery-truck-concept-illustration_114360-8088.jpg" alt="Xe tải" class="regulation-image">
+                        </div>
+                        
+                        <div class="regulation-item">
+                            <div class="regulation-number">3</div>
+                            <h5><i class="bi bi-bus-front text-warning"></i> Xe buýt</h5>
+                            <p>Ô tô được thiết kế để chở nhiều người, có từ 10 chỗ ngồi trở lên, chạy theo tuyến cố định.</p>
+                            <img src="https://img.freepik.com/free-vector/bus-concept-illustration_114360-8089.jpg" alt="Xe buýt" class="regulation-image">
+                        </div>
+                        
+                        <div class="regulation-item">
+                            <div class="regulation-number">4</div>
+                            <h5><i class="bi bi-bicycle text-danger"></i> Xe máy</h5>
+                            <p>Xe cơ giới có từ 2 đến 3 bánh, có động cơ, được thiết kế để chở người.</p>
+                            <img src="https://img.freepik.com/free-vector/motorcycle-concept-illustration_114360-8090.jpg" alt="Xe máy" class="regulation-image">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapter 2 -->
+                <div class="chapter-card" id="chapter2">
+                    <h2 class="chapter-title">
+                        <i class="bi bi-2-circle"></i>
+                        CHƯƠNG II: QUY ĐỊNH VỀ PHƯƠNG TIỆN
+                    </h2>
+                    
+                    <div class="article-title">Điều 3. Điều kiện tham gia giao thông của phương tiện</div>
+                    <div class="article-content">
+                        <div class="highlight-box">
+                            <p><strong>Phương tiện tham gia giao thông phải đảm bảo các điều kiện sau:</strong></p>
+                            <ul>
+                                <li>Có đăng ký và biển số xe hợp lệ</li>
+                                <li>Có giấy chứng nhận kiểm định an toàn kỹ thuật và bảo vệ môi trường</li>
+                                <li>Có giấy chứng nhận bảo hiểm trách nhiệm dân sự</li>
+                                <li>Đảm bảo an toàn kỹ thuật và bảo vệ môi trường</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="article-title">Điều 4. Quy định về tải trọng và kích thước</div>
+                    <div class="article-content">
+                        <p><strong>1. Tải trọng:</strong></p>
+                        <div class="info-box">
+                            <p><strong>a) Ô tô con:</strong> Không quá 9 chỗ ngồi, tải trọng không quá 3,5 tấn</p>
+                            <p><strong>b) Xe tải nhẹ:</strong> Tải trọng từ 3,5 tấn đến 7 tấn</p>
+                            <p><strong>c) Xe tải trung:</strong> Tải trọng từ 7 tấn đến 16 tấn</p>
+                            <p><strong>d) Xe tải nặng:</strong> Tải trọng trên 16 tấn</p>
+                            <p><strong>e) Xe buýt:</strong> Không quá 45 chỗ ngồi</p>
+                        </div>
+                    </div>
+
+                    <div class="regulation-grid">
+                        <div class="regulation-item">
+                            <div class="regulation-number">1</div>
+                            <h5><i class="bi bi-shield-check text-success"></i> Đăng ký xe</h5>
+                            <p>Phương tiện phải có đăng ký và biển số xe hợp lệ theo quy định của pháp luật.</p>
+                        </div>
+                        
+                        <div class="regulation-item">
+                            <div class="regulation-number">2</div>
+                            <h5><i class="bi bi-tools text-warning"></i> Kiểm định</h5>
+                            <p>Phương tiện phải có giấy chứng nhận kiểm định an toàn kỹ thuật và bảo vệ môi trường.</p>
+                        </div>
+                        
+                        <div class="regulation-item">
+                            <div class="regulation-number">3</div>
+                            <h5><i class="bi bi-credit-card text-info"></i> Bảo hiểm</h5>
+                            <p>Phương tiện phải có giấy chứng nhận bảo hiểm trách nhiệm dân sự của chủ xe cơ giới.</p>
+                        </div>
+                        
+                        <div class="regulation-item">
+                            <div class="regulation-number">4</div>
+                            <h5><i class="bi bi-gear text-primary"></i> An toàn kỹ thuật</h5>
+                            <p>Phương tiện phải đảm bảo an toàn kỹ thuật và bảo vệ môi trường theo quy định.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapter 3 -->
+                <div class="chapter-card" id="chapter3">
+                    <h2 class="chapter-title">
+                        <i class="bi bi-3-circle"></i>
+                        CHƯƠNG III: QUY TẮC THAM GIA GIAO THÔNG
+                    </h2>
+                    
+                    <div class="article-title">Điều 5. Quy tắc chung</div>
+                    <div class="article-content">
+                        <div class="highlight-box">
+                            <p><strong>Người tham gia giao thông phải:</strong></p>
+                            <ul>
+                                <li>Đi bên phải theo chiều đi của mình</li>
+                                <li>Đi đúng phần đường quy định</li>
+                                <li>Chấp hành hệ thống báo hiệu đường bộ</li>
+                                <li>Dừng, đỗ xe đúng nơi quy định</li>
+                                <li>Đảm bảo an toàn cho mình và người khác</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="article-title">Điều 6. Tốc độ và khoảng cách</div>
+                    <div class="article-content">
+                        <p><strong>1. Tốc độ tối đa cho phép:</strong></p>
+                        <div class="info-box">
+                            <p><strong>a) Trong khu vực đông dân cư:</strong></p>
+                            <ul>
+                                <li>Ô tô con, ô tô khách: 50 km/h</li>
+                                <li>Ô tô tải: 40 km/h</li>
+                                <li>Xe máy: 40 km/h</li>
+                            </ul>
+                            <p><strong>b) Ngoài khu vực đông dân cư:</strong></p>
+                            <ul>
+                                <li>Ô tô con, ô tô khách: 80 km/h</li>
+                                <li>Ô tô tải: 70 km/h</li>
+                                <li>Xe máy: 60 km/h</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Violations Section -->
+                <div class="chapter-card" id="violations">
+                    <h2 class="chapter-title">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        CHƯƠNG IV: CÁC HÀNH VI BỊ NGHIÊM CẤM
+                    </h2>
+                    
+                    <div class="highlight-box">
+                        <p><strong>Người tham gia giao thông phải có ý thức tự giác, nghiêm chỉnh chấp hành quy tắc giao thông, giữ gìn an toàn cho mình và cho người khác. Chủ phương tiện và người điều khiển phương tiện phải chịu trách nhiệm trước pháp luật về việc bảo đảm an toàn của phương tiện tham gia giao thông đường bộ.</strong></p>
+                    </div>
+
+                    <div class="article-title">Điều 7. Các hành vi bị nghiêm cấm</div>
+                    <div class="article-content">
+                        <div class="info-box">
+                            <p><strong>1. Đối với người điều khiển phương tiện:</strong></p>
+                            <ul>
+                                <li>Điều khiển phương tiện không có giấy phép lái xe</li>
+                                <li>Điều khiển phương tiện có nồng độ cồn vượt quá quy định</li>
+                                <li>Điều khiển phương tiện quá tốc độ quy định</li>
+                                <li>Vượt đèn đỏ, đèn vàng</li>
+                                <li>Đi ngược chiều</li>
+                                <li>Dừng, đỗ xe sai quy định</li>
+                            </ul>
+                            
+                            <p><strong>2. Đối với phương tiện:</strong></p>
+                            <ul>
+                                <li>Phương tiện không có đăng ký, biển số</li>
+                                <li>Phương tiện không có giấy chứng nhận kiểm định</li>
+                                <li>Phương tiện không có giấy chứng nhận bảo hiểm</li>
+                                <li>Chở quá tải, quá khổ</li>
+                                <li>Chở người vượt quá số người quy định</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <h4 class="mb-3">Bảng tóm tắt các hành vi bị nghiêm cấm</h4>
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Hành vi vi phạm</th>
+                                    <th>Mức phạt</th>
+                                    <th>Điểm trừ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Điều khiển xe không có giấy phép lái xe</td>
+                                    <td>4.000.000 - 6.000.000 VNĐ</td>
+                                    <td>7 điểm</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Điều khiển xe có nồng độ cồn vượt quá quy định</td>
+                                    <td>6.000.000 - 8.000.000 VNĐ</td>
+                                    <td>10 điểm</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Vượt quá tốc độ từ 20-35 km/h</td>
+                                    <td>3.000.000 - 5.000.000 VNĐ</td>
+                                    <td>5 điểm</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Vượt đèn đỏ</td>
+                                    <td>1.200.000 - 2.000.000 VNĐ</td>
+                                    <td>7 điểm</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Đi ngược chiều</td>
+                                    <td>3.000.000 - 5.000.000 VNĐ</td>
+                                    <td>7 điểm</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>Chở quá tải từ 20-50%</td>
+                                    <td>2.000.000 - 3.000.000 VNĐ</td>
+                                    <td>3 điểm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Penalties Section -->
+                <div class="chapter-card" id="penalties">
+                    <h2 class="chapter-title">
+                        <i class="bi bi-cash-coin"></i>
+                        CHƯƠNG V: MỨC PHẠT VÀ XỬ LÝ VI PHẠM
+                    </h2>
+                    
+                    <div class="article-title">Điều 8. Hình thức xử phạt</div>
+                    <div class="article-content">
+                        <div class="highlight-box">
+                            <p><strong>Đối với mỗi hành vi vi phạm hành chính về trật tự, an toàn giao thông, cá nhân, tổ chức vi phạm phải chịu một trong các hình thức xử phạt sau:</strong></p>
+                            <ul>
+                                <li><strong>Cảnh cáo:</strong> Áp dụng đối với vi phạm nhỏ, lần đầu</li>
+                                <li><strong>Phạt tiền:</strong> Áp dụng đối với hầu hết các vi phạm</li>
+                                <li><strong>Tước quyền sử dụng giấy phép lái xe:</strong> Từ 1-5 tháng</li>
+                                <li><strong>Tịch thu phương tiện:</strong> Đối với vi phạm nghiêm trọng</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="article-title">Điều 9. Hệ thống điểm trừ</div>
+                    <div class="article-content">
+                        <p><strong>1. Quy định về điểm trừ:</strong></p>
+                        <div class="info-box">
+                            <p><strong>a) Mức điểm trừ:</strong></p>
+                            <ul>
+                                <li>Vi phạm nhẹ: 1-3 điểm</li>
+                                <li>Vi phạm trung bình: 4-6 điểm</li>
+                                <li>Vi phạm nặng: 7-10 điểm</li>
+                            </ul>
+                            <p><strong>b) Xử lý khi hết điểm:</strong></p>
+                            <ul>
+                                <li>Từ 0 điểm: Tước quyền sử dụng GPLX 3 tháng</li>
+                                <li>Từ -1 đến -10 điểm: Tước quyền sử dụng GPLX 6 tháng</li>
+                                <li>Từ -11 điểm trở xuống: Tước quyền sử dụng GPLX 12 tháng</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h5><i class="bi bi-info-circle me-2"></i>Lưu ý quan trọng</h5>
+                        <p>Việc xử phạt vi phạm hành chính về trật tự, an toàn giao thông được thực hiện theo quy định của Nghị định 100/2019/NĐ-CP và các văn bản sửa đổi, bổ sung. Mức phạt có thể thay đổi theo thời gian, vui lòng cập nhật thông tin mới nhất.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="bi bi-arrow-up"></i>
+    </a>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Preloader
+        function hidePreloader() {
+            const preloader = document.getElementById("preloader");
+            preloader.classList.add("display");
+        }
+
+        // Back to top functionality
+        function toggleBackToTop() {
+            const backToTop = document.getElementById("backToTop");
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = "flex";
+            } else {
+                backToTop.style.display = "none";
+            }
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(hidePreloader, 1000);
+            
+            // Back to top event listeners
+            window.addEventListener('scroll', toggleBackToTop);
+            
+            document.getElementById('backToTop').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add active class to current navigation item
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentLocation = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

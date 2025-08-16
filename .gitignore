@@ -1,0 +1,19 @@
+# Bỏ venv
+.venv/
+venv/
+__pycache__/
+
+# Bỏ dữ liệu huấn luyện
+DATA_DATN/
+*.zip
+
+# Bỏ video test
+*.mp4
+*.avi
+
+# Bỏ model nặng
+*.pt
+*.pth
+
+# Bỏ file hệ thống
+.DS_Store

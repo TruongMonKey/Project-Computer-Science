@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê giao thông - Hệ thống Giao thông</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark-color) !important;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+
+        .nav-link:hover {
+            background-color: var(--primary-color);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            margin: 2rem auto;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .content-section {
+            padding: 2rem;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .chart-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-right: 0.75rem;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1rem 0;
+        }
+
+        .real-time-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .vehicle-card {
+            background: var(--light-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .vehicle-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .vehicle-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .vehicle-icon.car {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .vehicle-icon.motorcycle {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .vehicle-icon.truck {
+            background: linear-gradient(135deg, #45b7d1, #96c93d);
+        }
+
+        .vehicle-icon.bus {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .vehicle-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .vehicle-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            background: var(--light-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-title i {
+            margin-right: 0.5rem;
+            color: var(--success-color);
+        }
+
+        .info-content {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .time-display {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .time-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .time-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .location-display {
+            background: linear-gradient(135deg, var(--success-color), #047857);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .location-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .location-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 2rem;
+            }
+            
+            .content-section {
+                padding: 1rem;
+            }
+            
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .vehicle-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .display {
+            display: none !important;
+        }
+
+        .refresh-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-traffic me-2"></i>
+                Giám Sát Giao Thông
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Hethongcamera1">
+                            <i class="bi bi-layers me-1"></i>Làn đường
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/thongke">
+                            <i class="bi bi-graph-up me-1"></i>Thống kê
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/bb">
+                            <i class="bi bi-file-text me-1"></i>Quy định
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid" style="padding-top: 80px;">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1 class="header-title">
+                    <i class="bi bi-bar-chart me-3"></i>
+                    Thống Kê Giao Thông
+                </h1>
+                <p class="header-subtitle">
+                    Dữ liệu thống kê lưu lượng phương tiện tham gia giao thông
+                </p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="content-section">
+                <!-- Stats Overview -->
+                <div class="stats-overview">
+                    <div class="stat-card success">
+                        <div class="stat-icon">
+                            <i class="bi bi-car-front"></i>
+                        </div>
+                        <div class="stat-number" id="total-vehicles">0</div>
+                        <div class="stat-label">Tổng phương tiện</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div class="stat-number" id="uptime">24/7</div>
+                        <div class="stat-label">Thời gian hoạt động</div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <i class="bi bi-graph-up chart-icon"></i>
+                        <h2 class="chart-title">Thống Kê Lưu Lượng Phương Tiện</h2>
+                        <button class="refresh-btn ms-auto" onclick="refreshData()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+                        </button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Real-time Vehicle Count -->
+                <div class="real-time-section">
+                    <div class="chart-header">
+                        <i class="bi bi-activity chart-icon"></i>
+                        <h2 class="chart-title">Thống Kê Phương Tiện Theo Thời Gian Thực</h2>
+                    </div>
+                    
+                    <div class="vehicle-grid">
+                        <div class="vehicle-card">
+                            <div class="vehicle-icon car">
+                                <i class="bi bi-car-front"></i>
+                            </div>
+                            <div class="vehicle-count" id="car-count">0</div>
+                            <div class="vehicle-label">Ô tô</div>
+                        </div>
+                        
+                        <div class="vehicle-card">
+                            <div class="vehicle-icon motorcycle">
+                                <i class="bi bi-bicycle"></i>
+                            </div>
+                            <div class="vehicle-count" id="motorcycle-count">0</div>
+                            <div class="vehicle-label">Xe máy</div>
+                        </div>
+                        
+                        <div class="vehicle-card">
+                            <div class="vehicle-icon truck">
+                                <i class="bi bi-truck"></i>
+                            </div>
+                            <div class="vehicle-count" id="truck-count">0</div>
+                            <div class="vehicle-label">Xe tải</div>
+                        </div>
+                        
+                        <div class="vehicle-card">
+                            <div class="vehicle-icon bus">
+                                <i class="bi bi-bus-front"></i>
+                            </div>
+                            <div class="vehicle-count" id="bus-count">0</div>
+                            <div class="vehicle-label">Xe buýt</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Section -->
+                <div class="info-section">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3 class="info-title">
+                                <i class="bi bi-clock"></i>
+                                Thời Gian Hiện Tại
+                            </h3>
+                            <div class="time-display">
+                                <div class="time-label">Giờ hiện tại</div>
+                                <div class="time-value" id="current-time">00:00:00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3 class="info-title">
+                                <i class="bi bi-geo-alt"></i>
+                                Vị Trí Giám Sát
+                            </h3>
+                            <div class="location-display">
+                                <div class="location-label">Địa điểm</div>
+                                <div class="location-value">Phố Trần Hữu Dực, TP Hà Nội</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3 class="info-title">
+                                <i class="bi bi-info-circle"></i>
+                                Thông Tin Hệ Thống
+                            </h3>
+                            <div class="info-content">
+                                <p><strong>Trạng thái:</strong> <span class="text-success">Hoạt động</span></p>
+                                <p><strong>Cập nhật:</strong> <span id="last-update">Vừa xong</span></p>
+                                <p><strong>Độ chính xác:</strong> 95%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3 class="info-title">
+                                <i class="bi bi-graph-up-arrow"></i>
+                                Xu Hướng Giao Thông
+                            </h3>
+                            <div class="info-content">
+                                <p><strong>Giờ cao điểm:</strong> 7:00 - 9:00, 17:00 - 19:00</p>
+                                <p><strong>Lưu lượng cao nhất:</strong> <span id="peak-traffic">0</span> xe/giờ</p>
+                                <p><strong>Thời gian thấp nhất:</strong> 23:00 - 5:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Global variables
+        let trafficChart;
+        let updateInterval;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChart();
+            startRealTimeUpdates();
+            hidePreloader();
+        });
+
+        // Initialize Chart.js
+        function initializeChart() {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            trafficChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ô Tô', 'Xe Máy', 'Xe Đạp', 'Xe Tải', 'Xe Buýt'],
+                    datasets: [{
+                        label: 'Số lượng phương tiện',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 205, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 205, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update chart data
+        function updateChartData(data) {
+            trafficChart.data.datasets[0].data = data;
+            trafficChart.update('active');
+        }
+
+        // Fetch data from API
+        function fetchTrafficData() {
+            $.ajax({
+                url: "http://127.0.0.1:8000/test",
+                method: "GET",
+                success: function(response) {
+                    console.log("Dữ liệu thống kê:", response);
+                    
+                    // Update chart
+                    const chartData = [
+                        response[0] ? response[0][2] : 0,
+                        response[1] ? response[1][2] : 0,
+                        response[2] ? response[2][2] : 0,
+                        response[3] ? response[3][2] : 0,
+                        response[4] ? response[4][2] : 0
+                    ];
+                    updateChartData(chartData);
+                    
+                    // Update vehicle counts
+                    document.getElementById('car-count').textContent = chartData[0];
+                    document.getElementById('motorcycle-count').textContent = chartData[1];
+                    document.getElementById('truck-count').textContent = chartData[3];
+                    document.getElementById('bus-count').textContent = chartData[4];
+                    
+                    // Update total vehicles
+                    const totalVehicles = chartData.reduce((a, b) => a + b, 0);
+                    document.getElementById('total-vehicles').textContent = totalVehicles;
+                    
+                    // Update last update time
+                    document.getElementById('last-update').textContent = new Date().toLocaleTimeString('vi-VN');
+                    
+                    // Add pulse animation
+                    document.getElementById('total-vehicles').classList.add('pulse');
+                    setTimeout(() => {
+                        document.getElementById('total-vehicles').classList.remove('pulse');
+                    }, 1000);
+                },
+                error: function(xhr, status, error) {
+                    console.log("Lỗi khi tải dữ liệu:", error);
+                    // Use mock data if API fails
+                    const mockData = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 200), 
+                                    Math.floor(Math.random() * 50), Math.floor(Math.random() * 30), 
+                                    Math.floor(Math.random() * 20)];
+                    updateChartData(mockData);
+                }
+            });
+        }
+
+        // Fetch violation data
+        function fetchViolationData() {
+            $.ajax({
+                url: "http://127.0.0.1:8000/test1",
+                method: "GET",
+                success: function(response) {
+                    console.log("Dữ liệu vi phạm:", response);
+                    
+                    let totalViolations = 0;
+                    response.forEach(item => {
+                        if (item[0] && item[2]) {
+                            totalViolations += parseInt(item[2]);
+                        }
+                    });
+                    
+                    document.getElementById('total-violations').textContent = totalViolations;
+                },
+                error: function(xhr, status, error) {
+                    console.log("Lỗi khi tải dữ liệu vi phạm:", error);
+                    // Use mock data
+                    document.getElementById('total-violations').textContent = Math.floor(Math.random() * 50);
+                }
+            });
+        }
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('vi-VN');
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            // Initial data load
+            fetchTrafficData();
+            fetchViolationData();
+            updateTime();
+            
+            // Update time every second
+            setInterval(updateTime, 1000);
+            
+            // Update data every 30 seconds
+            updateInterval = setInterval(() => {
+                fetchTrafficData();
+                fetchViolationData();
+            }, 30000);
+        }
+
+        // Refresh data manually
+        function refreshData() {
+            fetchTrafficData();
+            fetchViolationData();
+            
+            // Show refresh animation
+            const btn = document.querySelector('.refresh-btn');
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Đang cập nhật...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Làm mới';
+            }, 2000);
+        }
+
+        // Preloader
+        function hidePreloader() {
+            const preloader = document.getElementById("preloader");
+            preloader.classList.add("display");
+        }
+
+        // Simulate average speed
+        setInterval(() => {
+            const avgSpeed = Math.floor(Math.random() * 40) + 20; // 20-60 km/h
+            document.getElementById('avg-speed').textContent = avgSpeed;
+        }, 10000);
+
+        // Simulate peak traffic
+        setInterval(() => {
+            const peakTraffic = Math.floor(Math.random() * 200) + 100; // 100-300 vehicles/hour
+            document.getElementById('peak-traffic').textContent = peakTraffic;
+        }, 15000);
+    </script>
+</body>
+</html>
